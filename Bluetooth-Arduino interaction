@@ -1,0 +1,30 @@
+char Incoming_value = 0;
+int state = 0;
+                
+void setup() 
+{
+  Serial.begin(9600);         
+  pinMode(4,OUTPUT);       
+}
+
+void loop()
+{
+  if(Serial.available() > 0)  
+  {
+    Incoming_value = Serial.read();      
+    if(state == 0){
+      digitalWrite(4, HIGH);
+      state = 1;
+    }else{
+      digitalWrite(4, LOW);
+      state = 0;
+    }
+    // DOESN'T WORK BECAUSE OF BLUETOOTH CHAR ISSUE
+    //Serial.print(Incoming_value);        
+    //Serial.print("\n");        
+    //if(Incoming_value == '1')             
+      //digitalWrite(4, HIGH);  
+    //else if(Incoming_value == '0')       
+      //digitalWrite(4, LOW);   
+  }                            
+} 
