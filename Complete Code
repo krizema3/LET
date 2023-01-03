@@ -1,0 +1,88 @@
+// DEFINE PINS
+#define MOTOR 9
+#define BUTTON 6
+#define BUZZER 5
+#define ECHO 11
+#define TRIGGER 10
+
+// OTHER PARAMS
+#define MAX_DIST 100
+
+// VARIABLES
+int buttonState = 0;
+bool walkState = true;
+char Incoming_value = 0;
+
+
+
+
+
+// SETUP ROUTINE
+void setup() {
+  pinMode(BUTTON, INPUT);
+  pinMode(TRIGGER, OUTPUT);
+  pinMode(ECHO, INPUT);
+  pinMode(MOTOR, OUTPUT);
+  pinMode(BUZZER,OUTPUT);
+  Serial.begin(9600);
+  delay(50);
+}
+
+
+
+
+
+// MAIN LOOP
+void loop() {
+
+  // WALK STATE SWITCHING
+  buttonState = digitalRead(BUTTON);
+  if (buttonState == HIGH) {
+    walkState = !walkState;
+    delay(500);
+  }
+  //Serial.print("WalkState: ");
+  //Serial.print(walkState);
+  //Serial.print("\n");
+
+
+
+  // GET SONAR MEASUREMENT AND ADJUST MOTOR POWER LEVEL
+  if (walkState == true){
+    digitalWrite(TRIGGER, HIGH);
+    delay(1);
+    digitalWrite(TRIGGER, LOW);
+    unsigned long duration = pulseIn(ECHO, HIGH, 25000); //to cca 4 (8) meters
+    float dist = duration / 58;  // Divide by round-trip microseconds per cm to get cm
+    //Serial.print("dist: ");
+    //Serial.print(dist);
+    //Serial.print("\n");
+    if((dist < MAX_DIST) && (dist > 0)){
+      analogWrite(MOTOR, 255-((dist/MAX_DIST)*255));
+    }else{
+      digitalWrite(MOTOR,0);  
+    }
+    //Serial.print("Motor power: ");
+    //Serial.print(255-((dist/MAX_DIST)*255));
+    //Serial.print("\n");
+  }else{
+    digitalWrite(MOTOR,0);
+  }
+
+
+
+  // CHECK FOR MOBILE APP SIGNAL AND PLAY TUNE
+  if(Serial.available() > 0)  
+  {
+    Incoming_value = Serial.read();  // just to remove the char
+    tone(BUZZER,1000);
+    delay(1000);
+    noTone(BUZZER);
+    //Serial.print("Buzzer ON: ");
+    //Serial.print("\n");
+  }
+
+
+
+  delay(50);
+}
